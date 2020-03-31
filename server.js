@@ -186,5 +186,95 @@ app.post('/home/pick_color', function(req, res) {
     });
 });
 
+app.get('/team_stats', function(req, res) {
+	var query1 = "select * from football_games where game_date < '2019-1-1';";
+	var query2 = "select count(*) from football_games where home_score > visitor_score and game_date < '2019-1-1';";
+	var query3 = "select count(*) from football_games where home_score < visitor_score and game_date < '2019-1-1';";
+
+	db.task('get-everything', task => {
+    		return task.batch([
+        		task.any(query1),
+        		task.any(query2),
+        		task.any(query3)
+    		]);
+	})
+	.then(data => {
+		res.render('pages/team_stats',{
+			my_title: "Team Stats",
+			games: data[0],
+			result_2: data[1],
+			result_3: data[2]
+		})
+	})
+	.catch(err => {
+    // display error message in case an error
+        	console.log('error', err);
+        	res.render('pages/page_name',{
+			my_title: "Page Title Here",
+			games: '',
+			result_2: '',
+			result_3: ''
+		})
+	});
+});
+
+app.get('/player_info', function(req, res) {
+	var query = "select id, name from football_players;";
+	db.any(query)
+	.then(data => {
+		res.render('pages/player_info',{
+			my_title: 'Player Info',
+			players: data,
+			pid: '',
+			playerInfo: '',
+			howmany: '',
+		})
+	})
+	.catch(err => {
+		console.log('error', err);
+		res.render('pages/player_info',{
+			my_title: 'Player Info',
+			players: '',
+			pid: '',
+			playerInfo: '',
+			howmany: '',
+		})
+	})
+});
+
+app.get('/player_info/post', function(req, res) {
+	var query0 = "select id, name from football_players;";
+	var choice = req.query.player_choice;
+	var query1 = "select * from football_players where id = " + choice + ";";
+	var query2 = "SELECT COUNT(players) FROM football_games WHERE '" + choice + "' = ANY(players)";
+	
+	db.task('get-everything', task => {
+		return task.batch([
+        		task.any(query0),
+        		task.any(query1),
+			task.any(query2),
+    		]);
+	})
+	.then(data => {
+		res.render('pages/player_info',{
+			my_title: 'Player Info',
+			players: data[0],
+			pid: req.query.player_choice,
+			playerInfo: data[1],
+			howmany: data[2],
+		})
+	})
+	.catch(err => {
+		console.log('error', err);
+		res.render('pages/player_info',{
+			my_title: 'Player Info',
+			players: '',
+			pid: '',
+			playerInfo: '',
+			howmany: '',
+		})
+	})
+});
+
 app.listen(3000);
 console.log('3000 is the magic port');

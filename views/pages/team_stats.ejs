@@ -22,10 +22,21 @@
 						1. Display the information for each row (date, name, home score, visitor score)
 						2. Determine who the winner is and display it in the final column
 
-						If you're not sure how the logic should work here, review the code you add to the client-side javascript
-						that ran onload for Lab 5.  We are doing the same kind of operations we had in Lab 5, but we are instead having
-						everything handled via server-side scriptes
 			-->
+
+    <% games.forEach(function(games) { %>
+        <tr>
+		<td><%= games.game_date %></td>
+		<td><%= games.visitor_name %></td>
+		<td><%= games.home_score %></td>
+		<td><%= games.visitor_score %></td>
+		<td><% if(games.home_score > games.visitor_score){var winner = "Colorado"}
+			else{var winner = games.visitor_name}%>
+		    <%- winner %>
+		</td>
+	</tr>
+    <% }); %>
+
 			
 		</table>
 		<br>
@@ -35,10 +46,8 @@
 				<th>Losses</th>
 			</tr>
 			<tr>
-				<td> <!-- TODO: Display the total number of wins here.  
-							    This value should come from your server.js files query, don't calculate it in this file! --></td>
-				<td> <!-- TODO: Display the total number of losses here.  
-							    This value should come from your server.js files query, don't calculate it in this file! --></td>
+				<td> <p><%- result_2[0].count %></p></td>
+				<td> <p><%- result_3[0].count %></p></td>
 			</tr>
 		</table>
 		
